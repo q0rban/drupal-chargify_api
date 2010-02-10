@@ -99,7 +99,7 @@ class chargify_connector {
       return $tree;
     }
 
-    return new ChargifySubscription($tree);
+    return new chargify_subscription($tree);
   }
 
   public function customers_get() {
@@ -108,7 +108,7 @@ class chargify_connector {
     $customer_objects = array();
 
     foreach ($customers as $customer) {
-      $customer_objects[] = new ChargifyCustomer($customer);
+      $customer_objects[] = new chargify_customer($customer);
     }
 
     return $customer_objects;
@@ -118,7 +118,7 @@ class chargify_connector {
     $xml = $this->customer_get_xml($id);
     $customer_xml_node = new SimpleXMLElement($xml);
 
-    return new ChargifyCustomer($customer_xml_node);
+    return new chargify_customer($customer_xml_node);
   }
 
   public function customer_get_subscriptions($id) {
@@ -127,7 +127,7 @@ class chargify_connector {
     $subscription_objects = array();
 
     foreach ($subscriptions as $subscription) {
-      $subscription_objects[] = new ChargifySubscription($subscription);
+      $subscription_objects[] = new chargify_subscription($subscription);
     }
 
     return $subscription_objects;
@@ -139,7 +139,7 @@ class chargify_connector {
     $product_objects = array();
     
     foreach ($all_products as $product) {
-      $product_objects[] = new ChargifyProduct($product);
+      $product_objects[] = new chargify_product($product);
     }
 
     return $product_objects;
