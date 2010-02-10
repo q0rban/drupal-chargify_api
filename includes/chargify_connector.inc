@@ -139,7 +139,7 @@ class chargify_connector {
     $product_objects = array();
     
     foreach ($all_products as $product) {
-      $product_objects[] = new product($product);
+      $product_objects[] = new ChargifyProduct($product);
     }
 
     return $product_objects;

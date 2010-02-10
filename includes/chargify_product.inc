@@ -2,7 +2,7 @@
 
 //Reference Documentation: http://support.chargify.com/faqs/api/api-products
 
-class product extends chargify_connector
+class ChargifyProduct extends chargify_connector
 {
   private $price_in_cents;
   private $name;
