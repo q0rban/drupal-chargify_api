@@ -133,7 +133,7 @@ class chargify_connector {
     return $subscription_objects;
   }
 
-  public function get_products() {
+  public function products_get() {
     $xml = $this->products_get_xml();
     $all_products = new SimpleXMLElement($xml);
     $product_objects = array();
