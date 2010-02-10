@@ -107,11 +107,27 @@ function chargify_api_include($file) {
   $included[$file] = TRUE;
 }
 
+function chargify_api_include_api() {
+  static $finished = FALSE;
+
+  if ($finished) {
+    return;
+  }
+
+  chargify_api_include('chargify_connector');
+  chargify_api_include('chargify_credit_card');
+  chargify_api_include('chargify_customer');
+  chargify_api_include('chargify_product');
+  chargify_api_include('chargify_subscription');
+
+  $finished = TRUE;
+}
+
 /**
  * Start a new Chargify Connection.
  */
 function chargify_api_new_connector() {
-  chargify_api_include('chargify_connector');
+  chargify_api_include_api();
 
   return new chargify_connector();
 }

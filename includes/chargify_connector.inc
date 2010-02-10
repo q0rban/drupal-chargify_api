@@ -154,6 +154,6 @@ class chargify_connector {
    *   String, command to connect to Chargify.
    */
   function connector_command($path = '') {
-    return "curl -u {$this->active_api_key}:x https://{$this->active_domain}.chargify.com/" . $path;
+    return "curl -k -u {$this->active_api_key}:x https://{$this->active_domain}.chargify.com/" . $path;
   }
 }
