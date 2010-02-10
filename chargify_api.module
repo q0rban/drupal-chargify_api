@@ -32,7 +32,7 @@ function chargify_api_menu() {
   );
 
   $items['chargify-postback'] = array(
-    'page callback' => 'chargify_sites_chargify_postback',
+    'page callback' => 'chargify_api_chargify_postback',
     'type' => MENU_CALLBACK,
     'access callback' => TRUE,
   );
@@ -111,9 +111,8 @@ function chargify_api_settings_form() {
 /**
  * Page callback for chargify-postback.
  */
-function chargify_sites_chargify_postback() {
-  $stuff = print_r($_POST, 1);
-  drupal_set_message($stuff);
+function chargify_api_chargify_postback() {
+  $stuff = file_get_contents("php://input");
   watchdog('user', $stuff, NULL, WATCHDOG_INFO);
 }
 
