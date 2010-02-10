@@ -2,7 +2,7 @@
 
 //Reference Documentation: http://support.chargify.com/faqs/api/api-subscriptions
 
-class ChargifySubscription extends chargify_connector
+class chargify_subscription extends chargify_connector
 {
   private $customer;
   private $product;
