@@ -1,0 +1,50 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ *   Chargify API install hooks.
+ */
+
+/**
+ * Implementation of hook_schema().
+ */
+function chargify_api_schema() {
+  $schema['chargify_subscriptions'] = array(
+    'description' => t('TODO'),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The Chargify id of this subscription.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "User's uid.",
+      ),
+      'reference' => array(
+        'description' => t('The reference.'),
+        'type' => 'char',
+        'length' => 64,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('cid'),
+    'unique keys' => array(
+      'ur' => array('uid', 'reference'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function chargify_api_install() {
+  // Create tables.
+  drupal_install_schema('chargify_api');
+}
