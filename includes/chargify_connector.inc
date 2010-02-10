@@ -108,7 +108,7 @@ class chargify_connector {
     $customer_objects = array();
 
     foreach ($customers as $customer) {
-      $customer_objects[] = new ChargifyCustomer($customer);
+      $customer_objects[] = new customer($customer);
     }
 
     return $customer_objects;
@@ -118,7 +118,7 @@ class chargify_connector {
     $xml = $this->customer_get_xml($id);
     $customer_xml_node = new SimpleXMLElement($xml);
 
-    return new ChargifyCustomer($customer_xml_node);
+    return new customer($customer_xml_node);
   }
 
   public function customer_get_subscriptions($id) {

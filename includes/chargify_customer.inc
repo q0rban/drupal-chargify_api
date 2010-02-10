@@ -2,7 +2,7 @@
 
 //Reference Documentation: http://support.chargify.com/faqs/api/api-customers
 
-class ChargifyCustomer extends chargify_connector
+class customer extends chargify_connector
 {
   private $id;
   private $created_at;
