@@ -24,7 +24,7 @@ class ChargifySubscription extends chargify_connector
     //Load object dynamically and convert SimpleXMLElements into strings
     foreach($subscription_xml_node as $key => $element)
     {
-      if($key == 'customer') { $this->customer = new customer($element); }
+      if($key == 'customer') { $this->customer = new ChargifyCustomer($element); }
       else if($key == 'product') { $this->product = new ChargifyProduct($element); }
       else if($key == 'credit_card') { $this->credit_card = new ChargifyCreditCard($element); }
       else { $this->$key = (string)$element; }
