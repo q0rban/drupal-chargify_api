@@ -31,11 +31,13 @@ function chargify_api_menu() {
     'access arguments' => array('administer chargify'),
   );
 
-  $items['chargify-postback'] = array(
-    'page callback' => 'chargify_api_chargify_postback',
-    'type' => MENU_CALLBACK,
-    'access callback' => TRUE,
-  );
+  if (function_exists('json_decode')) {
+    $items['chargify-postback'] = array(
+      'page callback' => 'chargify_api_chargify_postback',
+      'type' => MENU_CALLBACK,
+      'access callback' => TRUE,
+    );
+  }
 
   return $items;
 }
@@ -100,20 +102,19 @@ function chargify_api_settings_form() {
     '#default_value' => variable_get('chargify_api_domain', ''),
   );
 
-  $form = system_settings_form($form);
-
-  // Uncomment and update the callback to override the default system settings submit handler.
-  // $form['#submit'] = array('_settings_form_submit');
-
-  return $form;
+  return system_settings_form($form);
 }
 
 /**
  * Page callback for chargify-postback.
  */
 function chargify_api_chargify_postback() {
-  $stuff = file_get_contents("php://input");
-  watchdog('user', $stuff, NULL, WATCHDOG_INFO);
+  $json = file_get_contents("php://input");
+  if (($customers = json_decode($json)) && is_array($customers)) {
+    foreach ($customers as $customer_id) {
+      chargify_api_customer_update($customer_id);
+    }
+  }
 }
 
 /**
@@ -155,4 +156,11 @@ function chargify_api_new_connector() {
   chargify_api_include_api();
 
   return new chargify_connector();
+}
+
+/**
+ * Update a customer, pulling data from Chargify.
+ */
+function chargify_api_customer_update($customer_id) {
+  $chargify = chargify_api_new_connector();
 }
