@@ -8,22 +8,17 @@
  *   http://github.com/lewsid/chargify_api_php
  */
 class chargify_connector {
-  private $api_key      = variable_get('chargify_api_api_key', '');
-  private $test_api_key = variable_get('chargify_api_test_api_key', '');
-  private $domain       = variable_get('chargify_api_domain', '');
-  private $test_domain  = variable_get('chargify_api_test_domain', '');
-  
   private $active_api_key;
   private $active_domain;
-  
+
   public function __construct() {
     if (variable_get('chargify_api_test_mode', TRUE)) {
-      $this->active_api_key = $this->test_api_key;
-      $this->active_domain  = $this->test_domain;
+      $this->active_api_key = variable_get('chargify_api_test_api_key', '');
+      $this->active_domain  = variable_get('chargify_api_test_domain', '');
     }
     else {
-      $this->active_api_key = $this->api_key;
-      $this->active_domain  = $this->domain;
+      $this->active_api_key = variable_get('chargify_api_api_key', '');
+      $this->active_domain  = variable_get('chargify_api_domain', '');
     }
   }
 
@@ -118,14 +113,14 @@ class chargify_connector {
 
     return $customer_objects;
   }
-  
+
   public function customer_get($id) {
     $xml = $this->customer_get_xml($id);
     $customer_xml_node = new SimpleXMLElement($xml);
 
     return new ChargifyCustomer($customer_xml_node);
   }
-  
+
   public function customer_get_subscriptions($id) {
     $xml = $this->customer_get_subscriptions_xml($id);
     $subscriptions = new SimpleXMLElement($xml);
@@ -137,7 +132,7 @@ class chargify_connector {
 
     return $subscription_objects;
   }
-  
+
   public function get_products() {
     $xml = $this->products_get_xml();
     $all_products = new SimpleXMLElement($xml);
@@ -162,5 +157,3 @@ class chargify_connector {
     return "curl -u {$this->active_api_key}:x https://{$this->active_domain}.chargify.com/" . $path;
   }
 }
-
-?>

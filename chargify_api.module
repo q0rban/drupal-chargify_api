@@ -33,8 +33,6 @@ function chargify_api_perm() {
   return array('administer chargify');
 }
 
-
-
 /**
  * Configuration settings form.
  */
@@ -94,4 +92,26 @@ function chargify_api_settings_form() {
   // $form['#submit'] = array('_settings_form_submit');
 
   return $form;
+}
+
+/**
+ * Include Chargify includes.
+ */
+function chargify_api_include($file) {
+  static $included = array();
+
+  if (!isset($included[$file])) {
+    module_load_include('inc', 'chargify_api', "includes/$file");
+  }
+
+  $included[$file] = TRUE;
+}
+
+/**
+ * Start a new Chargify Connection.
+ */
+function chargify_api_new_connector() {
+  chargify_api_include('chargify_connector');
+
+  return new chargify_connector();
 }
