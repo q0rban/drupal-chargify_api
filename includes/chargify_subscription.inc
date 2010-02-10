@@ -25,7 +25,7 @@ class ChargifySubscription extends chargify_connector
     foreach($subscription_xml_node as $key => $element)
     {
       if($key == 'customer') { $this->customer = new customer($element); }
-      else if($key == 'product') { $this->product = new ChargifyProduct($element); }
+      else if($key == 'product') { $this->product = new product($element); }
       else if($key == 'credit_card') { $this->credit_card = new ChargifyCreditCard($element); }
       else { $this->$key = (string)$element; }
     }
