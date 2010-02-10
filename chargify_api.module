@@ -1,0 +1,97 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ *   Chargify API Module.
+ *
+ *   Built by Sprocket.
+ *   http://sprocketcreative.com
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function chargify_api_menu() {
+  $items = array();
+
+  $items['admin/settings/chargify'] = array(
+    'title' => 'Chargify',
+    'description' => 'Configure Chargify settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('chargify_api_settings_form'),
+    'access arguments' => array('administer chargify'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function chargify_api_perm() {
+  return array('administer chargify');
+}
+
+
+
+/**
+ * Configuration settings form.
+ */
+function chargify_api_settings_form() {
+  $form = array();
+
+  $form['chargify_api_payment_page_hosted_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Chargify Hosted Payment Page'),
+    '#default_value' => variable_get('chargify_api_payment_page_hosted_path', ''),
+  );
+
+  $test_mode = variable_get('chargify_api_test_mode', TRUE);
+
+  $form['test'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Test mode'),
+    '#collapsible' => TRUE,
+    '#collapsed' => !$test_mode,
+  );
+  $form['test']['chargify_api_test_mode'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Test Mode'),
+    '#default_value' => $test_mode,
+  );
+  $form['test']['chargify_api_test_api_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Test API Key'),
+    '#default_value' => variable_get('chargify_api_test_api_key', ''),
+  );
+  $form['test']['chargify_api_test_domain'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Test domain'),
+    '#default_value' => variable_get('chargify_api_test_domain', ''),
+  );
+
+  $form['live'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Live mode'),
+    '#collapsible' => TRUE,
+    '#collapsed' => $test_mode,
+  );
+  $form['live']['chargify_api_api_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('API Key'),
+    '#default_value' => variable_get('chargify_api_api_key', ''),
+  );
+  $form['live']['chargify_api_domain'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Domain'),
+    '#default_value' => variable_get('chargify_api_domain', ''),
+  );
+
+  $form = system_settings_form($form);
+
+  // Uncomment and update the callback to override the default system settings submit handler.
+  // $form['#submit'] = array('_settings_form_submit');
+
+  return $form;
+}
