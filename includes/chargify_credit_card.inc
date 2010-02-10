@@ -2,7 +2,7 @@
 
 //Reference Documentation: http://support.chargify.com/faqs/api/api-subscriptions
 
-class ChargifyCreditCard extends chargify_connector
+class chargify_credit_card extends chargify_connector
 {
   private $card_type;
   private $expiration_month;
