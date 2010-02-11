@@ -9,14 +9,6 @@
  *   http://sprocketcreative.com
  */
 
-define('CHARGIFY_API_TRIALING', 'trialing');
-define('CHARGIFY_API_ACTIVE', 'active');
-define('CHARGIFY_API_SOFT_FAILURE', 'soft_failure');
-define('CHARGIFY_API_PAST_DUE', 'past_due');
-define('CHARGIFY_API_SUSPENDED', 'suspended');
-define('CHARGIFY_API_CLOSED', 'closed');
-define('CHARGIFY_API_EXPIRED', 'expired');
-
 /**
  * Implementation of hook_menu().
  */
@@ -83,6 +75,7 @@ function chargify_api_settings_form() {
     '#type' => 'textfield',
     '#title' => t('Test domain'),
     '#default_value' => variable_get('chargify_api_test_domain', ''),
+    '#description' => t('It is advised to use a different Chargify domain for testing, as there is currently no way to remove test subscriptions in Chargify.')
   );
 
   $form['live'] = array(
@@ -95,11 +88,13 @@ function chargify_api_settings_form() {
     '#type' => 'textfield',
     '#title' => t('API Key'),
     '#default_value' => variable_get('chargify_api_api_key', ''),
+    '#required' => !$test_mode,
   );
   $form['live']['chargify_api_domain'] = array(
     '#type' => 'textfield',
     '#title' => t('Domain'),
     '#default_value' => variable_get('chargify_api_domain', ''),
+    '#required' => !$test_mode,
   );
 
   return system_settings_form($form);
@@ -111,9 +106,7 @@ function chargify_api_settings_form() {
 function chargify_api_chargify_postback() {
   $json = file_get_contents("php://input");
   if (($customers = json_decode($json)) && is_array($customers)) {
-    foreach ($customers as $customer_id) {
-      chargify_api_customer_update($customer_id);
-    }
+    chargify_api_postback($customers);
   }
 }
 
@@ -159,8 +152,17 @@ function chargify_api_new_connector() {
 }
 
 /**
- * Update a customer, pulling data from Chargify.
+ * Store an array of customers that need to be updated.
  */
-function chargify_api_customer_update($customer_id) {
-  $chargify = chargify_api_new_connector();
+function chargify_api_postback($customers) {
+  if ($customers) {
+    // Check to see if there's any customers still in the variable and merge them together.
+    if ($existing_customers = variable_get('chargify_api_customer_update_queue', array())) {
+      $customers = array_merge($existing_customers, $customers);
+    }
+
+    // Ensure there are no duplicates and save the var.
+    $customers = array_unique($customers);
+    variable_set('chargify_api_customer_update_queue', $customers);
+  }
 }
