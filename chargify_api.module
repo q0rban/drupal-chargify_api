@@ -152,6 +152,28 @@ function chargify_api_new_connector() {
 }
 
 /**
+ * Return all products.
+ */
+function chargify_api_products_get() {
+  $connection = chargify_api_new_connector();
+
+  return $connection->products_get();
+}
+
+/**
+ * Load up a Chargify Customer.
+ */
+function chargify_api_customer_get() {
+  
+}
+
+function chargify_api_subscription_create($data, $data_type = 'xml') {
+  $connection = chargify_api_new_connector();
+
+  return $connection->create_subscription($data, $data_type);
+}
+
+/**
  * Store an array of customers that need to be updated.
  */
 function chargify_api_postback($customers) {
