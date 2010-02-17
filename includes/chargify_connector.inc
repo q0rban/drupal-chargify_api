@@ -88,9 +88,12 @@ class chargify_connector {
    * </subscription>
    */
 
-  public function createCustomerAndSubscription($post_xml) {
-    exec('curl -u ' . $this->active_api_key . ':x -H Content-Type:application/xml https://' . $this->active_domain 
-      . '.chargify.com/subscriptions.xml --data-binary "' . $post_xml . '"', $output);
+  public function create_subscription($post, $data_type = 'xml') {
+    $path = "subscriptions.xml";
+    $cmd = $this->connector_command($path, "application/$data_type");
+    $cmd .= " --data-binary '$post'";
+
+    exec($cmd, $output);
 
     $xml = implode("\n", $output);
     $tree = new SimpleXMLElement($xml);
@@ -150,10 +153,18 @@ class chargify_connector {
    *
    * @param $path
    *   The path and queries, appended to the base Chargify url.
+   * @param $header
+   *   Optional header.
    * @return
    *   String, command to connect to Chargify.
    */
-  function connector_command($path = '') {
-    return "curl -k -u {$this->active_api_key}:x https://{$this->active_domain}.chargify.com/" . $path;
+  function connector_command($path = '', $header = '') {
+    $output = "curl -k -u {$this->active_api_key}:x";
+    if ($header) {
+      $output .= " -H Content-Type:$header";
+    }
+    $output .= " https://{$this->active_domain}.chargify.com/" . $path;
+
+    return $output;
   }
 }
