@@ -7,6 +7,7 @@ class chargify_subscription extends chargify_connector {
   private $product;
   private $credit_card;
 
+  private $id;
   private $state;
   private $balance_in_cents;
   private $current_period_started_at;
@@ -46,6 +47,8 @@ class chargify_subscription extends chargify_connector {
 
 
   /* Getters */
+
+  public function getId() { return $this->id; }
 
   public function getCustomer() { return $this->customer; }
 
