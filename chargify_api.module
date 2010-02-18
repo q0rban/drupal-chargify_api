@@ -21,6 +21,7 @@ function chargify_api_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('chargify_api_settings_form'),
     'access arguments' => array('administer chargify'),
+    'file' => 'chargify_api.admin.inc',
   );
 
   if (function_exists('json_decode')) {
@@ -42,65 +43,6 @@ function chargify_api_perm() {
 }
 
 /**
- * Configuration settings form.
- */
-function chargify_api_settings_form() {
-  $form = array();
-
-  $form['chargify_api_payment_page_hosted_path'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Chargify Hosted Payment Page'),
-    '#default_value' => variable_get('chargify_api_payment_page_hosted_path', ''),
-  );
-
-  $test_mode = variable_get('chargify_api_test_mode', TRUE);
-
-  $form['test'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Test mode'),
-    '#collapsible' => TRUE,
-    '#collapsed' => !$test_mode,
-  );
-  $form['test']['chargify_api_test_mode'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Test Mode'),
-    '#default_value' => $test_mode,
-  );
-  $form['test']['chargify_api_test_api_key'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Test API Key'),
-    '#default_value' => variable_get('chargify_api_test_api_key', ''),
-  );
-  $form['test']['chargify_api_test_domain'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Test domain'),
-    '#default_value' => variable_get('chargify_api_test_domain', ''),
-    '#description' => t('It is advised to use a different Chargify domain for testing, as there is currently no way to remove test subscriptions in Chargify.')
-  );
-
-  $form['live'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Live mode'),
-    '#collapsible' => TRUE,
-    '#collapsed' => $test_mode,
-  );
-  $form['live']['chargify_api_api_key'] = array(
-    '#type' => 'textfield',
-    '#title' => t('API Key'),
-    '#default_value' => variable_get('chargify_api_api_key', ''),
-    '#required' => !$test_mode,
-  );
-  $form['live']['chargify_api_domain'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Domain'),
-    '#default_value' => variable_get('chargify_api_domain', ''),
-    '#required' => !$test_mode,
-  );
-
-  return system_settings_form($form);
-}
-
-/**
  * Page callback for chargify-postback.
  */
 function chargify_api_chargify_postback() {
@@ -111,16 +53,88 @@ function chargify_api_chargify_postback() {
 }
 
 /**
- * Include Chargify includes.
+ * Starts a new Chargify Connection or returns the static connector.
  */
-function chargify_api_include($file) {
-  static $included = array();
+function chargify_api_connector() {
+  static $connector = NULL;
 
-  if (!isset($included[$file])) {
-    module_load_include('inc', 'chargify_api', "includes/$file");
+  if (is_null($connector)) {
+    chargify_api_include_api();
+    $connector = new chargify_connector();
   }
 
-  $included[$file] = TRUE;
+  return $connector;
+}
+
+/**
+ * Return all products.
+ */
+function chargify_api_products_get() {
+  $connector = chargify_api_connector();
+
+  return $connector->products_get();
+}
+
+/**
+ * Load up a Chargify Customer.
+ *
+ * @param $value
+ *   The chargify id or reference.
+ * @param $type
+ *   Either 'id' or 'reference' depending on whether the value is a chargify id or 
+ *   reference.  Defaults to 'id'.
+ */
+function chargify_api_customer_get($value, $type = 'id') {
+  $connector = chargify_api_connector();
+
+  switch ($type) {
+    case 'id':
+      return $connector->customer_get($value);
+    case 'reference':
+      return $connector->customer_get_by_ref($value);
+  }
+}
+
+/**
+ * Create a new subscription.
+ *
+ * @param $data
+ *   The data to be posted to Chargify
+ * @param $data_type
+ *   The type of data, 'xml' or 'json'.
+ */
+function chargify_api_subscription_create($data, $data_type = 'xml') {
+  $connector = chargify_api_connector();
+
+  return $connector->create_subscription($data, $data_type);
+}
+
+/**
+ * Return all subscriptions for a specific customer.
+ *
+ * @param $id
+ *   The chargify customer id.
+ */
+function chargify_api_customer_get_subscriptions($id) {
+  $connector = chargify_api_connector();
+
+  return $connector->customer_get_subscriptions($id);
+}
+
+/**
+ * Store an array of customers that need to be updated.
+ */
+function chargify_api_postback($customers) {
+  if ($customers) {
+    // Check to see if there's any customers still in the variable and merge them together.
+    if ($existing_customers = variable_get('chargify_api_customer_update_queue', array())) {
+      $customers = array_merge($existing_customers, $customers);
+    }
+
+    // Ensure there are no duplicates and save the var.
+    $customers = array_unique($customers);
+    variable_set('chargify_api_customer_update_queue', $customers);
+  }
 }
 
 /**
@@ -143,48 +157,14 @@ function chargify_api_include_api() {
 }
 
 /**
- * Start a new Chargify Connection.
+ * Include Chargify includes.
  */
-function chargify_api_new_connector() {
-  chargify_api_include_api();
+function chargify_api_include($file) {
+  static $included = array();
 
-  return new chargify_connector();
-}
-
-/**
- * Return all products.
- */
-function chargify_api_products_get() {
-  $connection = chargify_api_new_connector();
-
-  return $connection->products_get();
-}
-
-/**
- * Load up a Chargify Customer.
- */
-function chargify_api_customer_get() {
-  
-}
-
-function chargify_api_subscription_create($data, $data_type = 'xml') {
-  $connection = chargify_api_new_connector();
-
-  return $connection->create_subscription($data, $data_type);
-}
-
-/**
- * Store an array of customers that need to be updated.
- */
-function chargify_api_postback($customers) {
-  if ($customers) {
-    // Check to see if there's any customers still in the variable and merge them together.
-    if ($existing_customers = variable_get('chargify_api_customer_update_queue', array())) {
-      $customers = array_merge($existing_customers, $customers);
-    }
-
-    // Ensure there are no duplicates and save the var.
-    $customers = array_unique($customers);
-    variable_set('chargify_api_customer_update_queue', $customers);
+  if (!isset($included[$file])) {
+    module_load_include('inc', 'chargify_api', "includes/$file");
   }
+
+  $included[$file] = TRUE;
 }
