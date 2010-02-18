@@ -42,6 +42,17 @@ class chargify_connector {
     return $xml;
   }
 
+  public function customer_get_xml_by_ref($ref) {
+    $ref = urlencode($ref);
+    $path = "customers/lookup.xml?reference=$ref";
+    $cmd = $this->connector_command($path);
+
+    exec($cmd, $output);
+    $xml = implode("\n", $output);
+
+    return $xml;
+  }
+
   public function customer_get_subscriptions_xml($id) {
     $path = "customers/$id/subscriptions.xml";
     $cmd = $this->connector_command($path);
@@ -119,6 +130,13 @@ class chargify_connector {
 
   public function customer_get($id) {
     $xml = $this->customer_get_xml($id);
+    $customer_xml_node = new SimpleXMLElement($xml);
+
+    return new chargify_customer($customer_xml_node);
+  }
+
+  public function customer_get_by_ref($ref) {
+    $xml = $this->customer_get_xml_by_ref($ref);
     $customer_xml_node = new SimpleXMLElement($xml);
 
     return new chargify_customer($customer_xml_node);
