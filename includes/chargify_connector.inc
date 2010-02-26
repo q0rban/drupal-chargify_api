@@ -7,6 +7,10 @@
  *   Adapted from Christopher Lewis' Chargify API wrapper for PHP, found at 
  *   http://github.com/lewsid/chargify_api_php
  */
+
+/**
+ * Chargify Connector.  Yay!
+ */
 class chargify_connector {
   private $active_api_key;
   private $active_domain;
