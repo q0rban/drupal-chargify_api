@@ -9,7 +9,7 @@
  */
 
 /**
- * Chargify Connector.  Yay!
+ * The Chargify connector class.  Yay!
  */
 class chargify_connector {
   private $active_api_key;
