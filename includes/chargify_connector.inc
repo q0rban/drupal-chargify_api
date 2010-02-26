@@ -107,13 +107,13 @@ class chargify_connector {
    * @return
    *   A chargify_customer object.
    */
-  public function customer_get($id, $type = 'id') {
+  public function customer_get($value, $type = 'id') {
     switch ($type) {
       case 'ref':
-        $xml = $this->customer_get_xml_by_ref($ref);
+        $xml = $this->customer_get_xml_by_ref($value);
         break;
       default:
-        $xml = $this->customer_get_xml($id, $type);
+        $xml = $this->customer_get_xml($value);
     }
     $customer_xml_node = new SimpleXMLElement($xml);
 
@@ -162,18 +162,77 @@ class chargify_connector {
   /**
    * Returns a chargify product, by ID or handle.
    *
-   * @param $id
+   * @param $value
    *   The numeric id or string handle.
    * @param $type
-   *   Either 'id' or 'handle' depending on $id.
+   *   Either 'id' or 'handle' depending on $value.
    * @return
    *   A chargify_product object.
    */
-  public function product_get($id, $type = 'id') {
-    $xml = $this->product_get_xml($id, $type = 'id');
+  public function product_get($value, $type = 'id') {
+    $xml = $this->product_get_xml($value, $type = 'id');
     $xml_obj = new SimpleXMLElement($xml);
 
     return new chargify_product($xml_obj);
+  }
+
+  public function customers_get_xml($page_num = 1) {
+    $path = "customers.xml?page=$page_num";
+    $cmd = $this->connector_command($path);
+
+    return $this->connect($cmd);
+  }
+
+  public function customer_get_xml($id) {
+    $path = "customers/$id.xml";
+    $cmd = $this->connector_command($path);
+
+    return $this->connect($cmd);
+  }
+
+  public function customer_get_xml_by_ref($ref) {
+    $ref = urlencode($ref);
+    $path = "customers/lookup.xml?reference=$ref";
+    $cmd = $this->connector_command($path);
+
+    return $this->connect($cmd);
+  }
+
+  public function customer_get_subscriptions_xml($id) {
+    $path = "customers/$id/subscriptions.xml";
+    $cmd = $this->connector_command($path);
+
+    return $this->connect($cmd);
+  }
+
+  public function products_get_xml() {
+    $path = "products.xml";
+    $cmd = $this->connector_command($path);
+
+    return $this->connect($cmd);
+  }
+
+  public function product_get_xml($id, $type = 'id') {
+    $path = 'products/';
+    $path .= ($type == 'handle') ? "handle/$id.xml" : "$id.xml";
+
+    $cmd = $this->connector_command($path);
+
+    return $this->connect($cmd);
+  }
+
+  /**
+   * Connect to Chargify by executing a command.
+   *
+   * @param $cmd
+   *   The command that will be executed.
+   * @return
+   *   The string response.
+   */
+  private function connect($cmd) {
+    $output = array();
+    exec($cmd, $output);
+    return implode("\n", $output);
   }
 
   /**
@@ -186,7 +245,7 @@ class chargify_connector {
    * @return
    *   String, command to connect to Chargify.
    */
-  function connector_command($path = '', $header = '') {
+  private function connector_command($path = '', $header = '') {
     $output = "curl -k -u {$this->active_api_key}:x";
     if ($header) {
       $output .= " -H Content-Type:$header";
@@ -194,68 +253,5 @@ class chargify_connector {
     $output .= " https://{$this->active_domain}.chargify.com/" . $path;
 
     return $output;
-  }
-
-  public function customers_get_xml($page_num = 1) {
-    $path = "customers.xml?page=$page_num";
-    $cmd = $this->connector_command($path);
-
-    exec($cmd, $output);
-    $xml = implode("\n", $output);
-
-    return $xml;
-  }
-
-  public function customer_get_xml($id) {
-    $path = "customers/$id.xml";
-    $cmd = $this->connector_command($path);
-
-    exec($cmd, $output);
-    $xml = implode("\n", $output);
-
-    return $xml;
-  }
-
-  public function customer_get_xml_by_ref($ref) {
-    $ref = urlencode($ref);
-    $path = "customers/lookup.xml?reference=$ref";
-    $cmd = $this->connector_command($path);
-
-    exec($cmd, $output);
-    $xml = implode("\n", $output);
-
-    return $xml;
-  }
-
-  public function customer_get_subscriptions_xml($id) {
-    $path = "customers/$id/subscriptions.xml";
-    $cmd = $this->connector_command($path);
-
-    exec($cmd, $output);
-    $xml = implode("\n", $output);
-
-    return $xml;
-  }
-
-  public function products_get_xml() {
-    $path = "products.xml";
-    $cmd = $this->connector_command($path);
-
-    exec($cmd, $output);
-    $xml = implode("\n", $output);
-
-    return $xml;
-  }
-
-  public function product_get_xml($id, $type = 'id') {
-    $path = 'products/';
-    $path .= ($type == 'handle') ? "handle/$id.xml" : "$id.xml";
-
-    $cmd = $this->connector_command($path);
-
-    exec($cmd, $output);
-    $xml = implode("\n", $output);
-
-    return $xml;
   }
 }

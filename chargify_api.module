@@ -76,6 +76,22 @@ function chargify_api_products_get() {
 }
 
 /**
+ * Returns a chargify product, by ID or handle.
+ *
+ * @param $value
+ *   The numeric id or string handle.
+ * @param $type
+ *   Either 'id' or 'handle' depending on $value.
+ * @return
+ *   A chargify_product object.
+ */
+function chargify_api_product_get($value, $type = 'id') {
+  $connector = chargify_api_connector();
+
+  return $connector->product_get($value, $type = 'id');
+}
+
+/**
  * Load up a Chargify Customer.
  *
  * @param $value
@@ -87,12 +103,7 @@ function chargify_api_products_get() {
 function chargify_api_customer_get($value, $type = 'id') {
   $connector = chargify_api_connector();
 
-  switch ($type) {
-    case 'id':
-      return $connector->customer_get($value);
-    case 'reference':
-      return $connector->customer_get_by_ref($value);
-  }
+  return $connector->customer_get($value, $type);
 }
 
 /**
