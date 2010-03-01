@@ -88,7 +88,7 @@ function chargify_api_products_get() {
 function chargify_api_product_get($value, $type = 'id') {
   $connector = chargify_api_connector();
 
-  return $connector->product_get($value, $type = 'id');
+  return $connector->product_get($value, $type);
 }
 
 /**
