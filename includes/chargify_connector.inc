@@ -148,15 +148,16 @@ class chargify_connector {
    *   An array of all Chargify products, each item being a chargify_product object.
    */
   public function products_get() {
-    $xml = $this->products_get_xml();
-    $all_products = new SimpleXMLElement($xml);
-    $product_objects = array();
-    
-    foreach ($all_products as $product) {
-      $product_objects[] = new chargify_product($product);
-    }
+    if ($xml = $this->products_get_xml()) {
+      $all_products = new SimpleXMLElement($xml);
+      $product_objects = array();
 
-    return $product_objects;
+      foreach ($all_products as $product) {
+        $product_objects[] = new chargify_product($product);
+      }
+
+      return $product_objects;
+    }
   }
 
   /**
@@ -170,10 +171,11 @@ class chargify_connector {
    *   A chargify_product object.
    */
   public function product_get($value, $type = 'id') {
-    $xml = $this->product_get_xml($value, $type = 'id');
-    $xml_obj = new SimpleXMLElement($xml);
-
-    return new chargify_product($xml_obj);
+    if ($xml = $this->product_get_xml($value, $type)) {
+      $xml_obj = new SimpleXMLElement($xml);
+  
+      return new chargify_product($xml_obj);
+    }
   }
 
   public function customers_get_xml($page_num = 1) {
@@ -212,9 +214,9 @@ class chargify_connector {
     return $this->connect($cmd);
   }
 
-  public function product_get_xml($id, $type = 'id') {
+  public function product_get_xml($value, $type = 'id') {
     $path = 'products/';
-    $path .= ($type == 'handle') ? "handle/$id.xml" : "$id.xml";
+    $path .= ($type == 'handle') ? "handle/$value.xml" : "$value.xml";
 
     $cmd = $this->connector_command($path);
 
