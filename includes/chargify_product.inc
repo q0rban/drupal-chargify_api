@@ -23,7 +23,7 @@ class chargify_product extends chargify_connector
   
   public function getPriceInCents() { return $this->price_in_cents; }
   
-  public function getPriceInDollars() { return number_format($this->price_in_cents / 100, 0); }
+  public function getPriceInDollars() { return number_format($this->price_in_cents / 100, 2); }
   
   public function getName() { return $this->name; }
   
