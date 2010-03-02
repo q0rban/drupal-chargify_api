@@ -12,12 +12,6 @@
 function chargify_api_settings_form() {
   $form = array();
 
-  $form['chargify_api_payment_page_hosted_path'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Chargify Hosted Payment Page'),
-    '#default_value' => variable_get('chargify_api_payment_page_hosted_path', ''),
-  );
-
   $test_mode = variable_get('chargify_api_test_mode', TRUE);
 
   $form['test'] = array(
