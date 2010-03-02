@@ -16,7 +16,7 @@ function chargify_api_settings_form() {
 
   $form['postback_url'] = array(
     '#type' => 'item',
-    '#title' => 'Postback URL',
+    '#title' => 'Post-Back URL',
     '#value' => url('chargify-postback', array('absolute' => TRUE)),
     '#description' => t('In order to notify this site of events that happen inside the Chargify application, such as new signups and accounts entering dunning, you can add this url to your Post-Back Settings page within Chargify.'),
   );
