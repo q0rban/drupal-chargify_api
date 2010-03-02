@@ -14,6 +14,19 @@ function chargify_api_settings_form() {
 
   $test_mode = variable_get('chargify_api_test_mode', TRUE);
 
+  $form['postback_url'] = array(
+    '#type' => 'item',
+    '#title' => 'Postback URL',
+    '#value' => url('chargify-postback', array('absolute' => TRUE)),
+    '#description' => t('In order to notify this site of events that happen inside the Chargify application, such as new signups and accounts entering dunning, you can add this url to your Post-Back Settings page within Chargify.'),
+  );
+
+  $domain = $test_mode ? variable_get('chargify_api_test_domain', '') : variable_get('chargify_api_domain', '');
+  if ($domain) {
+    $url = url('http://'. $domain .'.chargify.com/settings', array('fragment' => 'postback-settings'));
+    $form['postback_url']['#description'] .= t(' Please visit <a href="!url">your Chargify account</a> to update this value.', array('!url' => $url));
+  }
+
   $form['test'] = array(
     '#type' => 'fieldset',
     '#title' => t('Test mode'),
