@@ -24,6 +24,14 @@ function chargify_api_menu() {
     'file' => 'chargify_api.admin.inc',
   );
 
+  if (function_exists('json_decode')) {
+    $items['chargify-postback'] = array(
+      'page callback' => 'chargify_api_chargify_postback',
+      'type' => MENU_CALLBACK,
+      'access callback' => TRUE,
+    );
+  }
+
   return $items;
 }
 
@@ -32,6 +40,16 @@ function chargify_api_menu() {
  */
 function chargify_api_perm() {
   return array('administer chargify');
+}
+
+/**
+ * Page callback for chargify-postback.
+ */
+function chargify_api_chargify_postback() {
+  $json = file_get_contents("php://input");
+  if (($customers = json_decode($json)) && is_array($customers)) {
+    chargify_api_postback($customers);
+  }
 }
 
 /**
@@ -112,6 +130,22 @@ function chargify_api_customer_get_subscriptions($id) {
   $connector = chargify_api_connector();
 
   return $connector->customer_get_subscriptions($id);
+}
+
+/**
+ * Store an array of customers that need to be updated.
+ */
+function chargify_api_postback($customers) {
+  if ($customers) {
+    // Check to see if there's any customers still in the variable and merge them together.
+    if ($existing_customers = variable_get('chargify_api_customer_update_queue', array())) {
+      $customers = array_merge($existing_customers, $customers);
+    }
+
+    // Ensure there are no duplicates and save the var.
+    $customers = array_unique($customers);
+    variable_set('chargify_api_customer_update_queue', $customers);
+  }
 }
 
 /**
