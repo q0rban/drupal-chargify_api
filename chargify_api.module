@@ -1,5 +1,5 @@
 <?php
-// $Id: chargify_api.module,v 1.2 2010/03/05 20:35:37 q0rban Exp $
+// $Id: chargify_api.module,v 1.3 2010/03/05 20:45:54 q0rban Exp $
 
 /**
  * @file
@@ -164,7 +164,11 @@ function chargify_api_customer_get_subscriptions($id) {
 }
 
 /**
- * Store an array of customers that need to be updated.
+ * Store an array of customers that need to be updated. 
+ *
+ * The Chargify API module does nothing to manage this list other than adding new
+ * customers to the variable. If you update customers based on this queue, please
+ * clean up afterwards by removing the customer ID from the variable and resaving.
  */
 function chargify_api_postback($customers) {
   if ($customers) {
