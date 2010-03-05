@@ -70,9 +70,15 @@ function chargify_api_connector() {
  * Return all products.
  */
 function chargify_api_products_get() {
-  $connector = chargify_api_connector();
+  static $products;
 
-  return $connector->products_get();
+  if (is_null($products)) {
+    $connector = chargify_api_connector();
+  
+    $products = $connector->products_get();
+  }
+
+  return $products;
 }
 
 /**
@@ -86,9 +92,14 @@ function chargify_api_products_get() {
  *   A chargify_product object.
  */
 function chargify_api_product_get($value, $type = 'id') {
-  $connector = chargify_api_connector();
+  static $products = array();
 
-  return $connector->product_get($value, $type);
+  if (!isset($products[$type][$value])) {
+    $connector = chargify_api_connector();
+    $products[$type][$value] = $connector->product_get($value, $type);
+  }
+
+  return $products[$type][$value];
 }
 
 /**

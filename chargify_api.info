@@ -1,3 +1,4 @@
 ; $Id$
 name = Chargify API
 core = 6.x
+package = Chargify
