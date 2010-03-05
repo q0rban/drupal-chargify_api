@@ -1,5 +1,5 @@
 <?php
-// $Id$
+// $Id: chargify_connector.inc,v 1.1 2010/03/05 20:05:27 q0rban Exp $
 
 /**
  * @file
