@@ -62,13 +62,16 @@ class chargify_connector {
    *   A chargify_subscription object.
    */
   public function create_subscription($post, $data_type = 'xml') {
-    $path = "subscriptions.xml";
-    $cmd = $this->connector_command($path, "application/$data_type");
-    $cmd .= " --data-binary '$post'";
+    $options = array(
+      CURLOPT_HTTPHEADER => "Content-Type:application/$data_type",
+      CURLOPT_BINARYTRANSFER => TRUE,
+      CURLOPT_POSTFIELDS, $post,
+    );
 
-    exec($cmd, $output);
+    $ch = $this->curl_handle('subscriptions.xml', $options);
 
-    $xml = implode("\n", $output);
+    $xml = $this->connect($ch);
+
     $tree = new SimpleXMLElement($xml);
 
     if (isset($tree->error)) { 
@@ -180,80 +183,87 @@ class chargify_connector {
 
   public function customers_get_xml($page_num = 1) {
     $path = "customers.xml?page=$page_num";
-    $cmd = $this->connector_command($path);
+    $ch = $this->curl_handle($path);
 
-    return $this->connect($cmd);
+    return $this->connect($ch);
   }
 
   public function customer_get_xml($id) {
     $path = "customers/$id.xml";
-    $cmd = $this->connector_command($path);
+    $ch = $this->curl_handle($path);
 
-    return $this->connect($cmd);
+    return $this->connect($ch);
   }
 
   public function customer_get_xml_by_ref($ref) {
     $ref = urlencode($ref);
     $path = "customers/lookup.xml?reference=$ref";
-    $cmd = $this->connector_command($path);
+    $ch = $this->curl_handle($path);
 
-    return $this->connect($cmd);
+    return $this->connect($ch);
   }
 
   public function customer_get_subscriptions_xml($id) {
     $path = "customers/$id/subscriptions.xml";
-    $cmd = $this->connector_command($path);
+    $ch = $this->curl_handle($path);
 
-    return $this->connect($cmd);
+    return $this->connect($ch);
   }
 
   public function products_get_xml() {
     $path = "products.xml";
-    $cmd = $this->connector_command($path);
+    $ch = $this->curl_handle($path);
 
-    return $this->connect($cmd);
+    return $this->connect($ch);
   }
 
   public function product_get_xml($value, $type = 'id') {
     $path = 'products/';
     $path .= ($type == 'handle') ? "handle/$value.xml" : "$value.xml";
 
-    $cmd = $this->connector_command($path);
+    $ch = $this->curl_handle($path);
 
-    return $this->connect($cmd);
+    return $this->connect($ch);
   }
 
   /**
-   * Connect to Chargify by executing a command.
+   * Connect to Chargify by executing the cURL handle.
    *
-   * @param $cmd
-   *   The command that will be executed.
+   * @param $ch
+   *   A cURL handle returned by curl_init().
    * @return
-   *   The string response.
+   *   The result on success, FALSE on failure.
    */
-  private function connect($cmd) {
-    $output = array();
-    exec($cmd, $output);
-    return implode("\n", $output);
+  private function connect(&$ch) {
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
   }
 
   /**
-   * Constructs the string command that connects to Chargify.
+   * Constructs the cURL handle that connects to Chargify.
    *
    * @param $path
    *   The path and queries, appended to the base Chargify url.
-   * @param $header
-   *   Optional header.
+   * @param $options
+   *   An array specifying which options to set and their values. The keys should 
+   *   be valid curl_setopt() constants or their integer equivalents. 
    * @return
-   *   String, command to connect to Chargify.
+   *   A cURL handle.
    */
-  private function connector_command($path = '', $header = '') {
-    $output = "curl -k -u {$this->active_api_key}:x";
-    if ($header) {
-      $output .= " -H Content-Type:$header";
-    }
-    $output .= " https://{$this->active_domain}.chargify.com/" . $path;
+  private function curl_handle($path = '', $options = array()) {
+    // Initialize the curl handle.
+    $ch = curl_init();
 
-    return $output;
+    $options += array(
+      CURLOPT_URL => "https://{$this->active_domain}.chargify.com/$path",
+      CURLOPT_SSL_VERIFYPEER => FALSE,
+      CURLOPT_USERPWD => "{$this->active_api_key}:x",
+      CURLOPT_RETURNTRANSFER => TRUE,
+    );
+
+    curl_setopt_array($ch, $options);
+
+    return $ch;
   }
 }
