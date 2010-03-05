@@ -124,11 +124,31 @@ function chargify_api_customer_get($value, $type = 'id') {
  *   The data to be posted to Chargify
  * @param $data_type
  *   The type of data, 'xml' or 'json'.
+ * @return
+ *   A chargify_subscription object.
  */
 function chargify_api_subscription_create($data, $data_type = 'xml') {
   $connector = chargify_api_connector();
 
   return $connector->subscription_create($data, $data_type);
+}
+
+/**
+ * Delete a subscription.
+ *
+ * @param $id
+ *   The Chargify subscription id.
+ * @param $data
+ *   String, xml or json post data to be posted to chargify.
+ * @param $data_type
+ *   The type of data that is being posted, 'json' or 'xml'.
+ * @return
+ *   Boolean value on success or failure.
+ */
+function chargify_api_subscription_create($id, $data, $data_type = 'xml') {
+  $connector = chargify_api_connector();
+
+  return $connector->subscription_delete($id, $data, $data_type);
 }
 
 /**
