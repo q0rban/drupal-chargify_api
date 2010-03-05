@@ -145,7 +145,7 @@ function chargify_api_subscription_create($data, $data_type = 'xml') {
  * @return
  *   Boolean value on success or failure.
  */
-function chargify_api_subscription_create($id, $data, $data_type = 'xml') {
+function chargify_api_subscription_delete($id, $data, $data_type = 'xml') {
   $connector = chargify_api_connector();
 
   return $connector->subscription_delete($id, $data, $data_type);
