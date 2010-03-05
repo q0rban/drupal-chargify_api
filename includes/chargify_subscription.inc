@@ -19,9 +19,9 @@ class chargify_subscription extends chargify_connector {
   private $created_at;
   private $updated_at;
 
-  public function __construct(SimpleXMLElement $subscription_xml_node) {
+  public function __construct(SimpleXMLElement $subscription_xml) {
     //Load object dynamically and convert SimpleXMLElements into strings
-    foreach ($subscription_xml_node as $key => $element) {
+    foreach ($subscription_xml as $key => $element) {
       switch ($key) {
         case 'customer':
           $this->customer = new chargify_customer($element);

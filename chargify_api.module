@@ -128,7 +128,7 @@ function chargify_api_customer_get($value, $type = 'id') {
 function chargify_api_subscription_create($data, $data_type = 'xml') {
   $connector = chargify_api_connector();
 
-  return $connector->create_subscription($data, $data_type);
+  return $connector->subscription_create($data, $data_type);
 }
 
 /**

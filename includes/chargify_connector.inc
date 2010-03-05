@@ -61,24 +61,25 @@ class chargify_connector {
    * @return
    *   A chargify_subscription object.
    */
-  public function create_subscription($post, $data_type = 'xml') {
+  public function subscription_create($post, $data_type = 'xml') {
     $options = array(
-      CURLOPT_HTTPHEADER => "Content-Type:application/$data_type",
+      CURLOPT_HTTPHEADER => array("Content-Type:application/$data_type"),
       CURLOPT_BINARYTRANSFER => TRUE,
-      CURLOPT_POSTFIELDS, $post,
+      CURLOPT_POSTFIELDS => $post,
     );
 
     $ch = $this->curl_handle('subscriptions.xml', $options);
 
-    $xml = $this->connect($ch);
+    if ($xml = $this->connect($ch)) {
+      $tree = new SimpleXMLElement($xml);
 
-    $tree = new SimpleXMLElement($xml);
+      if (isset($tree->error)) { 
+        return $tree;
+      }
 
-    if (isset($tree->error)) { 
-      return $tree;
+      return new chargify_subscription($tree);
     }
-
-    return new chargify_subscription($tree);
+    return FALSE;
   }
 
   /**
@@ -86,15 +87,19 @@ class chargify_connector {
    *
    * @param $id
    *   The Chargify subscription id.
+   * @param $post
+   *   String, xml or json post data to be posted to chargify.
+   * @param $data_type
+   *   The type of data that is being posted, 'json' or 'xml'.
    * @return
    *   Boolean value on success or failure.
    */
-  public function delete_subscription($id, $data_type = 'xml', $post = '') {
+  public function subscription_delete($id, $post, $data_type = 'xml') {
     $options = array(
-      CURLOPT_CUSTOMREQUEST => 'DELETE',
-      CURLOPT_HTTPHEADER => "Content-Type:application/$data_type",
+      CURLOPT_HTTPHEADER => array("Content-Type:application/$data_type"),
       CURLOPT_BINARYTRANSFER => TRUE,
-      CURLOPT_POSTFIELDS, $post,
+      CURLOPT_POSTFIELDS => $post,
+      CURLOPT_CUSTOMREQUEST => 'DELETE',
     );
     $ch = $this->curl_handle("subscriptions/$id.xml", $options);
 
@@ -280,6 +285,7 @@ class chargify_connector {
       CURLOPT_SSL_VERIFYPEER => FALSE,
       CURLOPT_USERPWD => "{$this->active_api_key}:x",
       CURLOPT_RETURNTRANSFER => TRUE,
+      //CURLOPT_VERBOSE => TRUE,
     );
 
     curl_setopt_array($ch, $options);
