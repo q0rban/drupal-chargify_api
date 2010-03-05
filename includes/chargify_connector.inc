@@ -82,6 +82,26 @@ class chargify_connector {
   }
 
   /**
+   * Deletes a subscription
+   *
+   * @param $id
+   *   The Chargify subscription id.
+   * @return
+   *   Boolean value on success or failure.
+   */
+  public function delete_subscription($id, $data_type = 'xml', $post = '') {
+    $options = array(
+      CURLOPT_CUSTOMREQUEST => 'DELETE',
+      CURLOPT_HTTPHEADER => "Content-Type:application/$data_type",
+      CURLOPT_BINARYTRANSFER => TRUE,
+      CURLOPT_POSTFIELDS, $post,
+    );
+    $ch = $this->curl_handle("subscriptions/$id.xml", $options);
+
+    return $this->connect($ch);
+  }
+
+  /**
    * Returns all customers.
    *
    * @return
