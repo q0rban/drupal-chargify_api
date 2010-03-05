@@ -29,7 +29,7 @@ class chargify_connector {
   /**
    * Creates a Chargify subscription.
    *
-   * @param $post
+   * @param $data
    *   String, xml or json post data to be posted to chargify.
    *
    *   Example XML:     
@@ -61,11 +61,11 @@ class chargify_connector {
    * @return
    *   A chargify_subscription object.
    */
-  public function subscription_create($post, $data_type = 'xml') {
+  public function subscription_create($data, $data_type = 'xml') {
     $options = array(
       CURLOPT_HTTPHEADER => array("Content-Type:application/$data_type"),
       CURLOPT_BINARYTRANSFER => TRUE,
-      CURLOPT_POSTFIELDS => $post,
+      CURLOPT_POSTFIELDS => $data,
     );
 
     $ch = $this->curl_handle('subscriptions.xml', $options);
@@ -87,18 +87,27 @@ class chargify_connector {
    *
    * @param $id
    *   The Chargify subscription id.
-   * @param $post
+   * @param $data
    *   String, xml or json post data to be posted to chargify.
+   *
+   *   Example XML:
+   *   <?xml version="1.0" encoding="UTF-8"?>
+   *   <subscription>
+   *     <cancellation_message>
+   *       Canceling the subscription via the API
+   *     </cancellation_message>
+   *   </subscription>
+   *
    * @param $data_type
    *   The type of data that is being posted, 'json' or 'xml'.
    * @return
    *   Boolean value on success or failure.
    */
-  public function subscription_delete($id, $post, $data_type = 'xml') {
+  public function subscription_delete($id, $data, $data_type = 'xml') {
     $options = array(
       CURLOPT_HTTPHEADER => array("Content-Type:application/$data_type"),
       CURLOPT_BINARYTRANSFER => TRUE,
-      CURLOPT_POSTFIELDS => $post,
+      CURLOPT_POSTFIELDS => $data,
       CURLOPT_CUSTOMREQUEST => 'DELETE',
     );
     $ch = $this->curl_handle("subscriptions/$id.xml", $options);
