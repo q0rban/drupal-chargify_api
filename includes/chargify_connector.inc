@@ -1,5 +1,5 @@
 <?php
-// $Id: chargify_connector.inc,v 1.1 2010/03/05 20:05:27 q0rban Exp $
+// $Id: chargify_connector.inc,v 1.2 2010/03/09 17:31:38 q0rban Exp $
 
 /**
  * @file
@@ -167,15 +167,16 @@ class chargify_connector {
    *   being a chargify_subscription object.
    */
   public function customer_get_subscriptions($id) {
-    $xml = $this->customer_get_subscriptions_xml($id);
-    $subscriptions = new SimpleXMLElement($xml);
-    $subscription_objects = array();
-
-    foreach ($subscriptions as $subscription) {
-      $subscription_objects[] = new chargify_subscription($subscription);
+    if ($xml = $this->customer_get_subscriptions_xml($id)) {
+      $subscriptions = new SimpleXMLElement($xml);
+      $subscription_objects = array();
+  
+      foreach ($subscriptions as $subscription) {
+        $subscription_objects[] = new chargify_subscription($subscription);
+      }
+  
+      return $subscription_objects;
     }
-
-    return $subscription_objects;
   }
 
   /**
@@ -271,7 +272,7 @@ class chargify_connector {
   private function connect(&$ch) {
     $result = curl_exec($ch);
     curl_close($ch);
-    return $result;
+    return trim($result);
   }
 
   /**
