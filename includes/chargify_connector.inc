@@ -1,5 +1,5 @@
 <?php
-// $Id: chargify_connector.inc,v 1.2 2010/03/09 17:31:38 q0rban Exp $
+// $Id: chargify_connector.inc,v 1.3 2010/03/09 23:00:32 q0rban Exp $
 
 /**
  * @file
