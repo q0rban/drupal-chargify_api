@@ -83,6 +83,24 @@ class chargify_connector {
   }
 
   /**
+   * Returns a Chargify subscription by ID.
+   *
+   * @param $id
+   *   The id or reference.
+   * @param $type
+   *   Either 'id' or 'ref' depending on $id.
+   * @return
+   *   A chargify_subscription object.
+   */
+  public function subscription_get($id) {
+    if ($xml = $this->subscription_get_xml($id)) {
+      $subscription_xml_node = new SimpleXMLElement($xml);
+
+      return new chargify_subscription($subscription_xml_node);
+    }
+  }
+
+  /**
    * Deletes a subscription
    *
    * @param $id
@@ -137,7 +155,7 @@ class chargify_connector {
   /**
    * Returns a Chargify customer, by ID or handle.
    *
-   * @param $id
+   * @param $value
    *   The id or reference.
    * @param $type
    *   Either 'id' or 'ref' depending on $id.
@@ -214,6 +232,13 @@ class chargify_connector {
   
       return new chargify_product($xml_obj);
     }
+  }
+
+  public function subscription_get_xml($id) {
+    $path = "subscriptions/$id.xml";
+    $ch = $this->curl_handle($path);
+
+    return $this->connect($ch);
   }
 
   public function customers_get_xml($page_num = 1) {

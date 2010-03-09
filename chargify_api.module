@@ -48,8 +48,8 @@ function chargify_api_perm() {
 function chargify_api_chargify_postback() {
   // Read the raw POST data, since PHP doesn't know what to do with a JSON post.
   $json = file_get_contents("php://input");
-  if (($customers = json_decode($json)) && is_array($customers) && !empty($customers)) {
-    module_invoke_all('chargify_api_postback', $customers);
+  if (($subscriptions = json_decode($json)) && is_array($subscriptions) && !empty($subscriptions)) {
+    module_invoke_all('chargify_api_postback', $subscriptions);
   }
 }
 
@@ -133,6 +133,21 @@ function chargify_api_subscription_create($data, $data_type = 'xml') {
 
   return $connector->subscription_create($data, $data_type);
 }
+
+/**
+ * Load a subscription.
+ *
+ * @param $id
+ *   The Chargify subscription ID.
+ * @return
+ *   A chargify_subscription object.
+ */
+function chargify_api_subscription_get($id) {
+  $connector = chargify_api_connector();
+
+  return $connector->subscription_get($id);
+}
+
 
 /**
  * Delete a subscription.
